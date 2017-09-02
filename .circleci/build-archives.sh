@@ -2,7 +2,7 @@
 for file in dist/*
 do
 
- if [ "$file" == *"win"* ]; then
+ if [[ "$file" == *"win"* ]]; then
 	new=${file:0:-4}
 	new+=".zip"
 	echo "win"
@@ -15,4 +15,4 @@ do
 done;
 
 mkdir packages
-mv *.zip *.gz packages/
+mv dist/*.zip dist/*.gz packages/
