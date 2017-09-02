@@ -25,4 +25,6 @@ jobs:
       - run: go get -v -t -d ./...
       - run: go test -v ./...
       - run: go get github.com/mitchellh/gox
-      - run: gox -os="linux windows" -arch="386 amd64 arm"
+      - run: go get github.com/tcnksm/ghr
+      - run: gox -os="linux windows" -arch="386 amd64 arm" -output "dist/ncd_{{.OS}}_{{.Arch}}"
+      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --replace `git describe --tags` dist/
