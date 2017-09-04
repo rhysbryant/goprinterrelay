@@ -16,7 +16,23 @@
     <link href="css/narrow-jumbotron.css" rel="stylesheet">
 	<script src="js/jquery-3.1.1.min.js" type="text/javascript" /></script>
 	<script src="js/statusUpdate.js" type="text/javascript" /></script>
-	
+	<script src="js/jquery.form.min.js" type="text/javascript" /></script>
+	<style type="text/css" >
+		.response{
+			white-space:pre;
+			/*border:1px black inset;*/
+			padding:5px;
+		}
+		.form-response-card{
+			margin-top:10px;
+		}
+		.card-block{
+			padding:10px;
+		}
+		.formcontainer{
+			margin-top:20px;
+		}
+	</style>
   </head>
 
   <body>
@@ -24,9 +40,12 @@
     <div class="container">
       <div class="header clearfix">
         <nav>
-          <ul class="nav nav-pills float-right">
+          <ul id="pageNav" class="nav nav-pills float-right">
             <li class="nav-item">
-              <a class="nav-link active" href="#">Status <span class="sr-only">(current)</span></a>
+              <a class="nav-link active" data-toggle="tab" href="#infoPage">Status <span class="sr-only">(current)</span></a>
+            </li>
+           <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" href="#toolsPage">Commands</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">About</a>
@@ -35,7 +54,7 @@
         </nav>
         <h3 class="text-muted">Go Print</h3>
       </div>
-
+	<div  id="infoPage">
       <div class="jumbotron">
         <h2 class="display-3">Printer Status</h2>
 		<h3 id="pStatus" ></h3>
@@ -104,10 +123,50 @@
 		  </table>
         </div>
       </div>
-
-      <footer class="footer">
-       
-      </footer>
+	</div>
+	 <div id="toolsPage" style="display:none" >
+	  <div id="toolsHelp"  style="display:none" >
+		To add commands create a new file within the tools directory see one of the existing examples for the format.
+		Each command can define 0 or more form fields the currently supported field types are
+			<ul>
+			 <li>file</li>
+			 <li>text</li>
+			</ul>
+		to refer to the fields within the command use $x  where x is the index of the field the field index
+		 is defined by the order the fields are defined. in the case of file $number is the path to where the file was uploaded.
+		
+		if usesPrinterConnection is set to true, the printer will not be contacted by this program until the command has finished executing.
+	  </div>
+	  <a href="#toolsHelp" class="helpLink" >Show Help</a>
+	  <div class="form-group" id="tools-form-item-template" style="display:none">
+	    <label for="itemtp"></label>
+	    <input type="text" class="form-control" id="itemtp" placeholder="">
+	  </div>
+	  <div id="tools-formtemplate" style="display:none" >
+		<div class="formcontainer card">
+		<h4 class="form-name card-header" ></h4>
+			<div class="card-block">
+				
+				<p class="card-text">
+					<form method="POST" action="/toolsform" enctype="multipart/form-data" >
+						
+						<input type="hidden" name="toolId" />
+						
+					</form>
+					<button type="button" class="btn btn-primary">Run</button>
+					<div class="card form-response-card" style="display:none">
+						<div class="card-block">
+							<h4 class="card-title">Result</h4>
+							<div class="response"></div>
+						</div>
+					</div>
+				</p>
+			</div>
+		</div>
+	
+	  </div>
+	
+	</div>
 
     </div> <!-- /container -->
 

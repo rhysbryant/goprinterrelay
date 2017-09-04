@@ -22,7 +22,9 @@ function ProgressBar(selecter){
 		progBar.show();
 	}
 }
+currentPage=null
 printProgress=null;
+currentPage=null
 jobStatusVisable=false;
 function refreshUi(data){
 	
@@ -64,11 +66,91 @@ function jobStatus(show){
 	}
 }
 
-var chart;
+function ajaxFormSubmit(){
+	var form=$(this).parent()
+	opt={
+		target:form.find('.response')   
+	}
+	form.find(".form-response-card").show();
+	form.find('form').ajaxSubmit(opt); 
+}
+
+function createFrormRow(label,type,name){
+	var tp=$("#tools-form-item-template").clone()
+	tp
+	.find("label")
+	.html(label)
+	.attr('for','i'+name)
+	tp
+	.find("input")
+	.attr('type',type)
+	.attr('id','i'+name)
+	.attr('name',name);
+	tp
+	.css({display:"block"});
+	
+	return tp;
+}
+
+function createForm(tool,id){
+	var tp=$("#tools-formtemplate").clone();
+	tp
+	.removeAttr("id")
+	.find(".form-name").html(tool.name)
+	.show()
+	form=tp.find("form")
+	form.find("input[name=toolId]").val(id)
+	for(var i in tool.formfields){
+		arg=tool.formfields[i]
+		formItem=createFrormRow(arg.name,arg.type,"toolArg"+i)
+		form.append(formItem)
+	}
+	tp.find("button").click(ajaxFormSubmit)
+	tp.find(".formcontainer").appendTo("#toolsPage")
+}
+
+
+function getTools(){
+	$.ajax({"url":"tools"}).done(
+	function(toolsObj){
+		for(var item in toolsObj){
+			var tool=toolsObj[item]
+			console.log(tool);
+			createForm(tool,item);
+		}
+		
+	});
+}
+
+function showHideHelp(){
+	var c=$(this);
+	if(c.attr('showen') == true){
+		$(c.attr('href')).hide();
+		c.removeAttr('showen')
+	}else{
+		c.attr('showen',true);
+		$(c.attr('href')).show();
+	}
+}
+
+function changeTag(t){
+	pageContainer=currentPage.attr('href')
+	$(pageContainer).hide();
+	currentPage.removeClass('active');
+	
+	currentPage=$(this)
+	newPage=currentPage.addClass('active').attr('href')
+	$(newPage).show();
+	
+}
 $(document).ready(function(){
 	printProgress=new ProgressBar("#printProg")
 	//setTimeout(refreshStatus,10000);
-	
+	getTools();
 	jobStatus(false);
 	refreshStatus();
+	
+	$("a.helpLink").click(showHideHelp)
+	$("#pageNav li a").click(changeTag)
+	currentPage=$("#pageNav li a.active")
 });

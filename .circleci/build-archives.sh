@@ -11,7 +11,7 @@ do
 	new+=".tar.gz"
  fi;
  echo "$new $file"
- archiver make "$new" $file ui config.json
+ archiver make "$new" $file ui tools config.json
 done;
 
 mkdir packages

@@ -49,6 +49,7 @@ var queryCache *QueryFieldsCacheMem
 var printerStatus *StatusQuery
 var config *Config
 var serialConLock = sync.Mutex{}
+var tools []Tool
 
 func connectToPrinter() error {
 	serialConLock.Lock()
@@ -81,6 +82,13 @@ func main() {
 		fmt.Println("Error listening:", err.Error())
 		os.Exit(2)
 	}
+
+	tools, err = loadTools("tools")
+	if err != nil {
+		fmt.Println("Error getting tools", err)
+		os.Exit(3)
+	}
+	fmt.Printf("%+v", tools)
 
 	go func() {
 		for {

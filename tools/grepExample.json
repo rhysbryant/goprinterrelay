@@ -1,0 +1,17 @@
+{
+	"name":"search file contents",
+	"cmd":"bash -c 'grep $2 $1'",
+	"usesPrinterConnection":false,
+	"formfields":[
+		{
+			"type":"file",
+			"name":"file to search",
+			"discription":"file to search"
+		},
+		{
+			"type":"text",
+			"name":"String to find",
+			"discription":"what to search for"
+		}
+	]
+}

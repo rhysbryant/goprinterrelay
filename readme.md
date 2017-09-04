@@ -19,9 +19,10 @@ Web status page and Serial <> TCPIP relay for daVinci jr 3d printers
    ```shell
    wget https://github.com/rhysbryant/goprinterrelay/releases/download/0.0.0a-1-ge2912f6-3-gf9185d0/goprinter_linux_arm.tar.gz 
    tar -xvf goprinter_linux_arm.tar.gz
+   sudo nohup ./goprinter_linux_arm &
    ```
 
-
+  to add custom commands see the help secion in the web interface
    ​
 
 4. go to http://{system-ip-address}:8080/ in your web browser to view the status page
@@ -33,6 +34,6 @@ this assumes you have some level of knowledge of golang
 
 ````shell
 go get github.com/rhysbryant/goprinterrelay
-goprinterrelay
+go build github.com/rhysbryant/goprinterrelay
 
 ````
