@@ -1,17 +1,24 @@
 #!/bin/bash
+mkdir release 
+configFile=""
+outputName=""
 for file in dist/*
 do
-
  if [[ "$file" == *"win"* ]]; then
 	new=${file:0:-4}
 	new+=".zip"
-	echo "win"
+	configFile="windows-config-example.json"
+	outputName="goprint.exe"
  else
 	new=$file
 	new+=".tar.gz"
+	configFile="linux-config-example.json"
+	outputName="goprint"
  fi;
- echo "$new $file"
- archiver make "$new" $file ui tools config.json
+ cp $configFile release/config.json
+ cp $file release/$outputName
+ archiver make "$new" ui tools release
+ rm release/*
 done;
 
 mkdir packages

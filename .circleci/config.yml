@@ -27,7 +27,19 @@ jobs:
       - run: go get github.com/mitchellh/gox
       - run: go get github.com/tcnksm/ghr
       - run: go get github.com/mholt/archiver/cmd/archiver
-      - run: gox -os="linux windows" -arch="386 amd64 arm" -output "dist/goprinter_{{.OS}}_{{.Arch}}"
+      - run: gox -os="linux windows darwin" -arch="386 amd64 arm" -output "dist/goprinter_{{.OS}}_{{.Arch}}" -ldflags="-X appVersion=$CIRCLE_TAG"
       - run: bash .circleci/build-archives.sh
-      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --replace `git describe --tags` packages/
-      
+      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME $CIRCLE_TAG packages/
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+		    tags:
+              only: /release-.*/

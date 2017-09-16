@@ -1,0 +1,19 @@
+{
+	"webui":{
+		"httpListener":":8080"
+	},
+	"printer":{
+		"devicePath":"/dev/serial/by-id/usb-11f1_2510_3F1J0PAU7TH55L0156-if00"
+		,"relayTcpListener":":9100"
+		,"queryOverrides":
+			{
+			 "n":"Go Printer Relay"
+			}
+		
+	},
+	"imagestream":{
+		"imageSourceCmd":"ffmpeg -f video4linux2 -i /dev/video0 -vf fps=24/60 -f mjpeg -",
+		"enableDebugLogging":false,
+		"autoStart":false
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"webui":{
+		"httpListener":":8080"
+	},
+	"printer":{
+		"devicePath":"COM4"
+		,"relayTcpListener":":9100"
+		,"queryOverrides":
+			{
+			 "n":"Go Printer Relay"
+			}
+		
+	},
+	"imagestream":{
+		"imageSourceCmd":"C:\\path\\to\\your\\ffmpeg.exe -f dshow -i video=\"Integrated Camera\"  -vf fps=24/60 -f mjpeg -",
+		"enableDebugLogging":false,
+		"autoStart":false
+	}
+}
