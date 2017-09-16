@@ -32,11 +32,11 @@ jobs:
       - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME $CIRCLE_TAG packages/
 workflows:
   version: 2
-  build_and_test:
+  build:
     jobs:
       - build:
-         filters:
-          tags:
+          filters:
+            tags:
               only: /^release-.*/
-          branches:
+            branches:
               ignore: /.*/
