@@ -35,6 +35,11 @@ type Config struct {
 		RelayTCPListener    string            `json:"relayTcpListener"`
 		RelayQueryOverrides map[string]string `json:"queryOverrides"`
 	} `json:"printer"`
+	ImageStream struct {
+		ImageSourceCmd     string `json:"imageSourceCmd"`
+		EnableDebugLogging bool   `json:"enableDebugLogging"`
+		AutoStart          bool   `json:"autoStart"`
+	} `json:"imagestream"`
 }
 
 func loadConfig(fileName string) (*Config, error) {

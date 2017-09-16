@@ -163,10 +163,11 @@ func StatusRequest(w http.ResponseWriter, r *http.Request) {
 func startHttpServer(listenerPath string) {
 
 	router := mux.NewRouter().StrictSlash(false)
-
+	router.HandleFunc("/imagestream", imageStreamWebsocketsMgr.WsUpgradeHandler)
 	router.HandleFunc("/status", StatusRequest).Methods("GET")
 	router.HandleFunc("/toolsform", ToolsFormPostRequest).Methods("POST")
 	router.HandleFunc("/tools", ToolsGetRequest).Methods("GET")
+	router.HandleFunc("/applicationInfo", ApplicationInfoGetRequest).Methods("GET")
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("ui")))
 	err := http.ListenAndServe(listenerPath, router)

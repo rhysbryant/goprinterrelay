@@ -31,6 +31,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rhysbryant/goprinterrelay/httphandlers"
 	"github.com/tarm/serial"
 )
 
@@ -50,6 +51,9 @@ var printerStatus *StatusQuery
 var config *Config
 var serialConLock = sync.Mutex{}
 var tools []Tool
+var applicationInfo *ApplicationInfo
+var imageStreamWebsocketsMgr = httphandlers.NewWsConnectionMgr()
+var AppVersion string
 
 func connectToPrinter() error {
 	serialConLock.Lock()
@@ -69,7 +73,19 @@ func disconnectFromPrinter() {
 	serialConLock.Unlock()
 }
 
+func getApplicationInfo(config *Config) *ApplicationInfo {
+	appInfo := ApplicationInfo{}
+	appInfo.FeatureConfig.Camera.AutoStart = config.ImageStream.AutoStart
+	appInfo.Version = AppVersion
+
+	return &appInfo
+}
+
 func main() {
+	if AppVersion == "" {
+		AppVersion = "dev-build"
+	}
+
 	var err error
 	config, err = loadConfig("config.json")
 	if err != nil {
@@ -83,12 +99,18 @@ func main() {
 		os.Exit(2)
 	}
 
+	applicationInfo = getApplicationInfo(config)
+
 	tools, err = loadTools("tools")
 	if err != nil {
 		fmt.Println("Error getting tools", err)
 		os.Exit(3)
 	}
-	fmt.Printf("%+v", tools)
+
+	if config.ImageStream.ImageSourceCmd != "" {
+
+		CreateImageStreamer(config.ImageStream.ImageSourceCmd, imageStreamWebsocketsMgr, config.ImageStream.EnableDebugLogging)
+	}
 
 	go func() {
 		for {

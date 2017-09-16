@@ -12,27 +12,13 @@
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
+	<link href="css/app.css" rel="stylesheet">
     <link href="css/narrow-jumbotron.css" rel="stylesheet">
 	<script src="js/jquery-3.1.1.min.js" type="text/javascript" /></script>
-	<script src="js/statusUpdate.js" type="text/javascript" /></script>
+	
 	<script src="js/jquery.form.min.js" type="text/javascript" /></script>
-	<style type="text/css" >
-		.response{
-			white-space:pre;
-			/*border:1px black inset;*/
-			padding:5px;
-		}
-		.form-response-card{
-			margin-top:10px;
-		}
-		.card-block{
-			padding:10px;
-		}
-		.formcontainer{
-			margin-top:20px;
-		}
-	</style>
+	<script src="js/imagestreaming.js" type="text/javascript" /></script>
+	<script src="js/statusUpdate.js" type="text/javascript" /></script>
   </head>
 
   <body>
@@ -56,8 +42,15 @@
       </div>
 	<div  id="infoPage">
       <div class="jumbotron">
-        <h2 class="display-3">Printer Status</h2>
-		<h3 id="pStatus" ></h3>
+        <h3 class="display-3">Printer Status</h3>
+		<h4 id="pStatus" ></h4>
+		<img id="camGrab" />
+		<div id="filmstrip-container" >
+			<ul id="filmstrip" >
+			
+			</ul>
+			<button id="streamStartStop" class="stream-control-btn" />
+		</div>
       </div>
 
       <div class="row marketing">

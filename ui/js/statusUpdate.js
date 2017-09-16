@@ -26,6 +26,7 @@ currentPage=null
 printProgress=null;
 currentPage=null
 jobStatusVisable=false;
+imageStreamer=null;
 function refreshUi(data){
 	
 	$("#vElapsed").html(data.elapsedTime)
@@ -146,6 +147,7 @@ function changeTag(t){
 $(document).ready(function(){
 	printProgress=new ProgressBar("#printProg")
 	//setTimeout(refreshStatus,10000);
+	loadApplicationConfig();
 	getTools();
 	jobStatus(false);
 	refreshStatus();
@@ -153,4 +155,17 @@ $(document).ready(function(){
 	$("a.helpLink").click(showHideHelp)
 	$("#pageNav li a").click(changeTag)
 	currentPage=$("#pageNav li a.active")
+	imageStreamer=new ImageStreamer($("#camGrab"),$("#filmstrip"),$("#streamStartStop"))
 });
+
+function loadApplicationConfig(){
+	$.ajax({url:"/applicationInfo"}).done(function(appInfo,o){
+		applySettings(appInfo);
+	});
+}
+
+function applySettings(appInfo){
+	if (appInfo.featureConfig.camera.autoStart){
+		imageStreamer.start();
+	}
+}

@@ -1,0 +1,42 @@
+.response{
+	white-space:pre;
+	/*border:1px black inset;*/
+	padding:5px;
+}
+.form-response-card{
+	margin-top:10px;
+}
+.card-block{
+	padding:10px;
+}
+.formcontainer{
+	margin-top:20px;
+}
+#filmstrip img{
+  height:100px;
+  cursor: pointer;
+}
+#filmstrip li{
+  display:inline;
+  white-space: nowrap
+}
+#filmstrip {
+  overflow:auto;
+  padding-left:0;
+  margin-left:0;
+}
+.stream-control-btn{
+	height:42px;
+	width:42px;
+	background:url('../img/camera.png') no-repeat center center;
+}
+.stream-control-btn.stream-disconnected{
+	background:url('../img/play-circle.png') no-repeat center center;
+}
+.stream-control-btn.stream-connected{
+	background:url('../img/media-stop.png') no-repeat center center;
+}
+#streamStartStop.stream-control-btn.stream-change-wait{
+	
+	background:url('../img/ajax-loader.gif') no-repeat center center;
+}
