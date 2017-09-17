@@ -20,6 +20,7 @@ do
  cp $file release/$outputName -f
  cd release/
  archiver make "../$new" ui tools config.json goprint*
+ cd ..
 done;
 
 mkdir packages
