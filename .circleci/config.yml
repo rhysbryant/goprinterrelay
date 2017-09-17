@@ -50,7 +50,10 @@ workflows:
       - build
       - deploy:
           requires:
-            - build
+            - build:
+              filters:
+               tags:
+                 only: /.*/
           filters:
             tags:
               only: /^release-.*/
