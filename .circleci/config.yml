@@ -45,7 +45,7 @@ jobs:
      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME $CIRCLE_TAG packages/
 workflows:
   version: 2
-  build-and-deploy:
+  build_and_test:
     jobs:
       - build
       - deploy:
