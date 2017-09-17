@@ -25,7 +25,6 @@ jobs:
       - run: go get -v -t -d ./...
       - run: go test -v ./...
       - run: go get github.com/mitchellh/gox
-      - run: go get github.com/tcnksm/ghr
       - run: go get github.com/mholt/archiver/cmd/archiver
       - run: gox -os="linux windows" -arch="386 amd64 arm" -output "dist/goprinter_{{.OS}}_{{.Arch}}" -ldflags="-X main.appVersion=_$CIRCLE_TAG"
       - run: bash .circleci/build-archives.sh
@@ -42,6 +41,7 @@ jobs:
      - restore_cache:
          keys:
           - build-cache-{{ .Branch }}
+     - run: go get github.com/tcnksm/ghr
      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME $CIRCLE_TAG packages/
 workflows:
   version: 2
