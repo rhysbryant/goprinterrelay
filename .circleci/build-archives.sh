@@ -2,6 +2,7 @@
 mkdir release 
 configFile=""
 outputName=""
+cp -R ui tools  release/
 for file in dist/*
 do
  if [[ "$file" == *"win"* ]]; then
@@ -15,10 +16,10 @@ do
 	configFile="linux-config-example.json"
 	outputName="goprint"
  fi;
- cp $configFile release/config.json
- cp $file release/$outputName
- archiver make "$new" ui tools release
- rm release/*
+ cp $configFile release/config.json -f
+ cp $file release/$outputName -f
+ cd release/
+ archiver make "../$new" ui tools config.json goprint*
 done;
 
 mkdir packages
