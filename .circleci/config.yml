@@ -30,7 +30,7 @@ jobs:
       - run: gox -os="linux windows" -arch="386 amd64 arm" -output "dist/goprinter_{{.OS}}_{{.Arch}}" -ldflags="-X main.appVersion=_$CIRCLE_TAG"
       - run: bash .circleci/build-archives.sh
       - save_cache:
-          key: build-cache-{{ .Branch }}-{{ checksum "VERSION" }}
+          key: build-cache-{{ .Branch }}
           paths: packages/
           
   deploy:
@@ -41,7 +41,7 @@ jobs:
     steps:
      - restore_cache:
          keys:
-          - build-cache-{{ .Branch }}-{{ checksum "VERSION" }}
+          - build-cache-{{ .Branch }}
      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME $CIRCLE_TAG packages/
 workflows:
   version: 2
