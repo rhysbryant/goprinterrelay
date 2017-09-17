@@ -144,6 +144,7 @@ function changeTag(t){
 	$(newPage).show();
 	
 }
+
 $(document).ready(function(){
 	printProgress=new ProgressBar("#printProg")
 	//setTimeout(refreshStatus,10000);
