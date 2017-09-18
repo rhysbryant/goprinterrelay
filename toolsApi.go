@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/mgutz/str"
 )
 
 func ToolsGetRequest(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +25,7 @@ func executeCommand(w io.Writer, cmd string, args []string) {
 		return args[argNumber-1]
 	})
 
-	parts := strings.Fields(expandedCmd)
+	parts := str.ToArgv(expandedCmd)
 	head := parts[0]
 	//parts = parts[1:len(parts)]
 
