@@ -29,7 +29,7 @@ jobs:
       - run: gox -os="linux windows" -arch="386 amd64 arm" -output "dist/goprinter_{{.OS}}_{{.Arch}}" -ldflags="-X main.AppVersion=_$CIRCLE_TAG"
       - run: bash .circleci/build-archives.sh
       - save_cache:
-          key: build-cache-{{ .Branch }}-"$CIRCLE_TAG"
+          key: build-cache-{{ .Branch }}-{{ checksum "packages/goprinter_windows_amd64.zip" }}
           paths: packages/
           
   deploy:
