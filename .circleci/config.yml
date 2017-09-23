@@ -31,8 +31,7 @@ jobs:
       - persist_to_workspace:
          root: packages/
          paths:
-          - *.zip
-          - *.tar.gz
+          - goprinter_*
       - store_artifacts:
          path:packages/
           
