@@ -28,9 +28,13 @@ jobs:
       - run: go get github.com/mholt/archiver/cmd/archiver
       - run: gox -os="linux windows" -arch="386 amd64 arm" -output "dist/goprinter_{{.OS}}_{{.Arch}}" -ldflags="-X main.AppVersion=_$CIRCLE_TAG"
       - run: bash .circleci/build-archives.sh
-      - save_cache:
-          key: build-cache-{{ .Branch }}-{{ checksum "packages/goprinter_windows_amd64.zip" }}
-          paths: packages/
+      - persist_to_workspace:
+         root: packages/
+         paths:
+          - *.zip
+          - *.tar.gz
+      - store_artifacts:
+         path:packages/
           
   deploy:
     docker:
@@ -38,9 +42,8 @@ jobs:
       - image: circleci/golang:1.8
     working_directory: /go/src/github.com/rhysbryant/goprinterrelay
     steps:
-     - restore_cache:
-         keys:
-          - build-cache-{{ .Branch }}-"$CIRCLE_TAG"
+     - attach_workspace:
+         at: packages
      - run: go get github.com/tcnksm/ghr
      - run: ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME $CIRCLE_TAG packages/
 workflows:
