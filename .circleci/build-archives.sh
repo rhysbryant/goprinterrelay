@@ -19,7 +19,7 @@ do
  cp $configFile release/config.json -f
  cp $file release/$outputName -f
  cd release/
- archiver make "../$new" ui tools config.json goprint*
+ archiver make "../$new" ui tools config.json $outputName
  cd ..
 done;
 
