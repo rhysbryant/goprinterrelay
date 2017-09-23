@@ -33,7 +33,7 @@ jobs:
          paths:
           - goprinter_*
       - store_artifacts:
-         path:packages/
+         path: packages/
           
   deploy:
     docker:
