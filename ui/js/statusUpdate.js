@@ -166,6 +166,7 @@ function loadApplicationConfig(){
 }
 
 function applySettings(appInfo){
+	$("#appVersion").html(appInfo.version);
 	if (appInfo.featureConfig.camera.autoStart){
 		imageStreamer.start();
 	}
