@@ -15,10 +15,15 @@ Web status page and Serial <> TCPIP relay for daVinci jr 3d printers
    #### Linux ( raspberry pi ) example
 
    download
+ see https://github.com/rhysbryant/goprinterrelay/releases/latest to get the download address
 
    ```shell
-   wget https://github.com/rhysbryant/goprinterrelay/releases/download/0.0.0a-1-ge2912f6-3-gf9185d0/goprinter_linux_arm.tar.gz 
+   wget {release download link}/goprinter_linux_arm.tar.gz 
    tar -xvf goprinter_linux_arm.tar.gz
+   ```
+   edit config.json and change devicePath (plugin you printer and run ls /dev/serial/by-id/usb-11f1_2510* )
+   to get the device path
+   ```shell
    sudo nohup ./goprinter_linux_arm &
    ```
 
