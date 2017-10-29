@@ -1,4 +1,4 @@
-package main
+package davinciprinter
 
 /**
 	This file is part of goPrinterRelay.

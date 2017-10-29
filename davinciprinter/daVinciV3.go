@@ -1,4 +1,4 @@
-package main
+package davinciprinter
 
 /**
 	This file is part of goPrinterRelay.
@@ -34,6 +34,11 @@ const (
 	EndOfResponse            = "$"
 	QueryResponseKeyValueSep = ":"
 	QueryTypeAll             = "a"
+
+	CommandTypeQuery  = "XYZv3/query"
+	CommandTypeConfig = "XYZv3/config"
+	CommandTypeAction = "XYZv3/action"
+	CommandTypeUpload = "XYZv3/upload"
 )
 
 type DaVinciV3Relay struct {
@@ -50,7 +55,7 @@ func NewDaVinciV3Relay(w io.Writer, r io.Reader, qc QueryFieldsCache) *DaVinciV3
 	return &d
 }
 
-func (d *DaVinciV3Relay) sendQueryResponse(strType string) error {
+func (d *DaVinciV3Relay) SendQueryResponse(strType string) error {
 	if strType == QueryTypeAll {
 		for k, v := range d.queryFields.GetAllFields() {
 			fmt.Fprintf(d.buffer, "%s:%s\n", k, v)
@@ -70,7 +75,7 @@ func (d *DaVinciV3Relay) RefreshStatus() error {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
-	err := d.sendQueryRequest(QueryTypeAll)
+	err := d.SendQueryRequest(QueryTypeAll)
 	if err != nil {
 		return err
 	}
@@ -83,7 +88,7 @@ func (d *DaVinciV3Relay) RefreshStatus() error {
 	return nil
 }
 
-func (d *DaVinciV3Relay) sendQueryRequest(queryType string) error {
+func (d *DaVinciV3Relay) SendQueryRequest(queryType string) error {
 	fmt.Fprintf(d.buffer, "%s=%s\n", CommandTypeQuery, queryType)
 	return d.buffer.Flush()
 }

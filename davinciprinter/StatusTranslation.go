@@ -1,4 +1,4 @@
-package main
+package davinciprinter
 
 /**
 	This file is part of goPrinterRelay.
@@ -19,7 +19,7 @@ package main
     along with goPrinterRelay.  If not, see <http://www.gnu.org/licenses/>.
 
 **/
-func getStatusText(code int) string {
+func GetStatusText(code int) string {
 	switch code {
 	case 0:
 

@@ -29,6 +29,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/rhysbryant/goprinterrelay/davinciprinter"
 )
 
 type StatusQuery struct {
@@ -104,7 +105,7 @@ func getStatusFromMap(values map[string]string) (*StatusQuery, error) {
 			log.Println(err)
 			return nil, err
 		}
-		status.PrinterStatus = getStatusText(statusCode)
+		status.PrinterStatus = davinciprinter.GetStatusText(statusCode)
 		fmt.Println(statusCode)
 	}
 

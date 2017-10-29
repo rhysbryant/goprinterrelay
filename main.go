@@ -31,22 +31,18 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rhysbryant/goprinterrelay/davinciprinter"
 	"github.com/rhysbryant/goprinterrelay/httphandlers"
 	"github.com/tarm/serial"
 )
 
 const (
 	CONN_TYPE = "tcp"
-
-	CommandTypeQuery  = "XYZv3/query"
-	CommandTypeConfig = "XYZv3/config"
-	CommandTypeAction = "XYZv3/action"
-	CommandTypeUpload = "XYZv3/upload"
 )
 
 var port *serial.Port
-var DaVinciPrinter *DaVinciV3Relay
-var queryCache *QueryFieldsCacheMem
+var DaVinciPrinter *davinciprinter.DaVinciV3Relay
+var queryCache *davinciprinter.QueryFieldsCacheMem
 var printerStatus *StatusQuery
 var config *Config
 var serialConLock = sync.Mutex{}
@@ -64,7 +60,7 @@ func connectToPrinter() error {
 		fmt.Println(err)
 		return err
 	}
-	DaVinciPrinter = NewDaVinciV3Relay(port, port, queryCache)
+	DaVinciPrinter = davinciprinter.NewDaVinciV3Relay(port, port, queryCache)
 	return nil
 }
 
@@ -92,7 +88,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	queryCache = NewQueryFieldsCache(config.Printer.RelayQueryOverrides)
+	queryCache = davinciprinter.NewQueryFieldsCache(config.Printer.RelayQueryOverrides)
 	l, err := net.Listen(CONN_TYPE, config.Printer.RelayTCPListener)
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
@@ -158,7 +154,7 @@ func main() {
 
 func handleRequest(conn net.Conn) {
 	buffer := bufio.NewReader(conn)
-	daVinciTcpIpCon := NewDaVinciV3Relay(conn, conn, queryCache)
+	daVinciTcpIpCon := davinciprinter.NewDaVinciV3Relay(conn, conn, queryCache)
 
 	for {
 		str, err := buffer.ReadString('\n')
@@ -170,14 +166,14 @@ func handleRequest(conn net.Conn) {
 			return
 		}
 		fmt.Println(str, err)
-		if strings.HasPrefix(str, CommandTypeQuery) {
-			queryType := str[len(CommandTypeQuery)+1 : len(CommandTypeQuery)+2]
+		if strings.HasPrefix(str, davinciprinter.CommandTypeQuery) {
+			queryType := str[len(davinciprinter.CommandTypeQuery)+1 : len(davinciprinter.CommandTypeQuery)+2]
 
-			daVinciTcpIpCon.sendQueryResponse(queryType)
+			daVinciTcpIpCon.SendQueryResponse(queryType)
 
-		} else if strings.HasPrefix(str, CommandTypeUpload) {
+		} else if strings.HasPrefix(str, davinciprinter.CommandTypeUpload) {
 
-			strUpload := str[len(CommandTypeUpload)+1 : len(str)-2]
+			strUpload := str[len(davinciprinter.CommandTypeUpload)+1 : len(str)-2]
 			fields := strings.Split(strUpload, ",")
 			fmt.Println(strUpload, fields)
 
@@ -196,7 +192,7 @@ func handleRequest(conn net.Conn) {
 				return
 			}
 
-			uploadHandler := NewDaVinciV3Upload(conn, nil, int64(length))
+			uploadHandler := davinciprinter.NewDaVinciV3Upload(conn, nil, int64(length))
 
 			err = DaVinciPrinter.Upload(uploadHandler, func() { fmt.Fprintln(conn, "ok") }, int64(length))
 			if err != nil {
@@ -205,7 +201,7 @@ func handleRequest(conn net.Conn) {
 
 			disconnectFromPrinter()
 
-		} else if strings.HasPrefix(str, CommandTypeConfig) || strings.HasPrefix(str, CommandTypeAction) {
+		} else if strings.HasPrefix(str, davinciprinter.CommandTypeConfig) || strings.HasPrefix(str, davinciprinter.CommandTypeAction) {
 			err = connectToPrinter()
 			if err != nil {
 				fmt.Println("unable to connect to printer ", err)
