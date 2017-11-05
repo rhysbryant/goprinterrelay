@@ -71,21 +71,17 @@ func (d *DaVinciV3Relay) SendQueryResponse(strType string) error {
 	return nil
 }
 
-func (d *DaVinciV3Relay) RefreshStatus() error {
+func (d *DaVinciV3Relay) RefreshStatus() (error, bool) {
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
 	err := d.SendQueryRequest(QueryTypeAll)
 	if err != nil {
-		return err
+		return err, false
 	}
 
-	err = d.reciveQueryResponse()
-	if err != nil {
-		return err
-	}
+	return d.reciveQueryResponse()
 
-	return nil
 }
 
 func (d *DaVinciV3Relay) SendQueryRequest(queryType string) error {
@@ -105,8 +101,8 @@ func parseKeyValueLine(strLine string) (*string, *string) {
 	return &key, &value
 }
 
-func (d *DaVinciV3Relay) reciveQueryResponse() error {
-
+func (d *DaVinciV3Relay) reciveQueryResponse() (error, bool) {
+	var hasChanged bool
 	for {
 		str, err := d.buffer.ReadString(NewLineChar)
 		if strings.HasSuffix(str, "\n") {
@@ -116,7 +112,7 @@ func (d *DaVinciV3Relay) reciveQueryResponse() error {
 		if err != nil && err == io.EOF {
 			break
 		} else if err != nil {
-			return err
+			return err, false
 		}
 		if str == EndOfResponse {
 			break
@@ -124,12 +120,14 @@ func (d *DaVinciV3Relay) reciveQueryResponse() error {
 
 		key, value := parseKeyValueLine(str)
 		if key == nil {
-			return errors.New("unable to parse query")
+			return errors.New("unable to parse query"), false
 		}
 
-		d.queryFields.SetField(*key, *value)
+		if hc := d.queryFields.SetField(*key, *value); hc {
+			hasChanged = true
+		}
 	}
-	return nil
+	return nil, hasChanged
 }
 func (d *DaVinciV3Relay) checkIsOk() error {
 	str, err := d.buffer.ReadString('\n')

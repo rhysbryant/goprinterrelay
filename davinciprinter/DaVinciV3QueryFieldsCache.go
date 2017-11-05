@@ -25,7 +25,7 @@ import (
 
 type QueryFieldsCache interface {
 	GetField(name string) (string, bool)
-	SetField(name string, val string)
+	SetField(name string, val string) bool
 	GetAllFields() map[string]string
 }
 
@@ -40,11 +40,17 @@ func (qc *QueryFieldsCacheMem) GetField(name string) (string, bool) {
 	return k, v
 }
 
-func (qc *QueryFieldsCacheMem) SetField(name string, val string) {
+func (qc *QueryFieldsCacheMem) SetField(name string, val string) bool {
 	if _, exists := qc.overrides[name]; exists {
-		return
+		return false
 	}
+	if v, exists := qc.fields[name]; exists && v == val {
+		return false
+	}
+
 	qc.fields[name] = val
+
+	return true
 }
 
 func (qc *QueryFieldsCacheMem) GetAllFields() map[string]string {

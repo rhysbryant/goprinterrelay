@@ -49,12 +49,31 @@ function refreshUi(data){
 	}
 }
 
-function refreshStatus(){
+function refreshStatus(onlyOnce){
 	
 	$.ajax({url:"/status"}).done(function(status,o){
 		refreshUi(status);
-		setTimeout(refreshStatus,10000);
+		
+		if (typeof(onlyOnce)=='undefined' || !onlyOnce){
+			setTimeout(refreshStatus,10000);
+		}
 	});
+}
+
+function onStatusUpdateReceived(evtData){
+	var received_msg = evtData.data;
+	if( typeof(received_msg) == "string"){
+		received_msg.type="application/json";
+		refreshUi(JSON.parse(received_msg));
+	} 
+		
+}
+
+function startStatusPush(){
+	
+	ws = new WebSocket("ws://"+location.host+"/statusPush");
+	ws.onmessage=onStatusUpdateReceived;
+	ws.onerror=refreshStatus;
 }
 
 function jobStatus(show){
@@ -151,7 +170,8 @@ $(document).ready(function(){
 	loadApplicationConfig();
 	getTools();
 	jobStatus(false);
-	refreshStatus();
+	refreshStatus(true);
+	startStatusPush();
 	
 	$("a.helpLink").click(showHideHelp)
 	$("#pageNav li a").click(changeTag)

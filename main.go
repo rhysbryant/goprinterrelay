@@ -117,7 +117,7 @@ func main() {
 				continue
 			}
 
-			err := DaVinciPrinter.RefreshStatus()
+			err, valuesChanged := DaVinciPrinter.RefreshStatus()
 			if err != nil {
 				fmt.Printf("getStatus error %s\n", err.Error())
 			}
@@ -130,9 +130,12 @@ func main() {
 				printerStatus = status
 				fmt.Printf("%+v", status)
 			}
+			if valuesChanged {
+				SendStatusUpdate()
+			}
 
 			disconnectFromPrinter()
-			time.Sleep(time.Second * 15)
+			time.Sleep(time.Second * 10)
 		}
 	}()
 

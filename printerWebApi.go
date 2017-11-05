@@ -20,6 +20,7 @@ package main
 
 **/
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -29,7 +30,9 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"github.com/rhysbryant/goprinterrelay/davinciprinter"
+	"github.com/rhysbryant/goprinterrelay/httphandlers"
 )
 
 type StatusQuery struct {
@@ -57,6 +60,8 @@ const (
 	ProductId           = "p"
 	ProductSerialId     = "i"
 )
+
+var statusPushWSMgr = httphandlers.NewWsConnectionMgr()
 
 func getStatusFromMap(values map[string]string) (*StatusQuery, error) {
 	status := StatusQuery{}
@@ -161,10 +166,17 @@ func StatusRequest(w http.ResponseWriter, r *http.Request) {
 	WriteJsonResponse(w, printerStatus)
 }
 
+func SendStatusUpdate() {
+	var buf bytes.Buffer
+	json.NewEncoder(&buf).Encode(printerStatus)
+	statusPushWSMgr.SendToAll(websocket.TextMessage, buf.Bytes())
+}
+
 func startHttpServer(listenerPath string) {
 
 	router := mux.NewRouter().StrictSlash(false)
 	router.HandleFunc("/imagestream", imageStreamWebsocketsMgr.WsUpgradeHandler)
+	router.HandleFunc("/statusPush", statusPushWSMgr.WsUpgradeHandler)
 	router.HandleFunc("/status", StatusRequest).Methods("GET")
 	router.HandleFunc("/toolsform", ToolsFormPostRequest).Methods("POST")
 	router.HandleFunc("/tools", ToolsGetRequest).Methods("GET")
