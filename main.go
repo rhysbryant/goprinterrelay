@@ -57,6 +57,7 @@ func connectToPrinter() error {
 	var err error
 	port, err = serial.OpenPort(&serial.Config{Name: config.Printer.DevicePath, Baud: 115200})
 	if err != nil {
+		serialConLock.Unlock()
 		fmt.Println(err)
 		return err
 	}
