@@ -20,16 +20,9 @@ package main
 
 **/
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"log"
-	"net"
 	"os"
-	"strconv"
-	"strings"
 	"sync"
-	"time"
 
 	"github.com/rhysbryant/goprinterrelay/davinciprinter"
 	"github.com/rhysbryant/goprinterrelay/httphandlers"
@@ -78,23 +71,15 @@ func getApplicationInfo(config *Config) *ApplicationInfo {
 	return &appInfo
 }
 
-func main() {
-	if AppVersion == "" {
-		AppVersion = "dev-build"
-	}
-
+func startApplication() {
 	var err error
+
 	config, err = loadConfig("config.json")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	queryCache = davinciprinter.NewQueryFieldsCache(config.Printer.RelayQueryOverrides)
-	l, err := net.Listen(CONN_TYPE, config.Printer.RelayTCPListener)
-	if err != nil {
-		fmt.Println("Error listening:", err.Error())
-		os.Exit(2)
-	}
 
 	applicationInfo = getApplicationInfo(config)
 
@@ -109,120 +94,24 @@ func main() {
 		CreateImageStreamer(config.ImageStream.ImageSourceCmd, imageStreamWebsocketsMgr, config.ImageStream.EnableDebugLogging)
 	}
 
-	go func() {
-		for {
-			err = connectToPrinter()
-			if err != nil {
-				fmt.Println("unable to connect to printer ", err)
-				time.Sleep(time.Second * 30)
-				continue
-			}
-
-			err, valuesChanged := DaVinciPrinter.RefreshStatus()
-			if err != nil {
-				fmt.Printf("getStatus error %s\n", err.Error())
-			}
-
-			status, err := getStatusFromMap(queryCache.GetAllFields())
-			if err != nil {
-				fmt.Println(err)
-
-			} else {
-				printerStatus = status
-				fmt.Printf("%+v", status)
-			}
-			if valuesChanged {
-				SendStatusUpdate()
-			}
-
-			disconnectFromPrinter()
-			time.Sleep(time.Second * 10)
-		}
-	}()
-
 	go startHttpServer(config.WebUI.Httplistener)
-
-	defer l.Close()
-
-	for {
-		// Listen for an incoming connection.
-		conn, err := l.Accept()
-		if err != nil {
-			fmt.Println("Error accepting: ", err.Error())
-			os.Exit(1)
-		}
-		// Handle connections in a new goroutine.
-		go handleRequest(conn)
-	}
+	go startDavinciTcpListener(config.Printer.RelayTCPListener)
+	updateStatusLoop()
 }
 
-func handleRequest(conn net.Conn) {
-	buffer := bufio.NewReader(conn)
-	daVinciTcpIpCon := davinciprinter.NewDaVinciV3Relay(conn, conn, queryCache)
-
-	for {
-		str, err := buffer.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				return
-			}
-			log.Println(err)
-			return
-		}
-		fmt.Println(str, err)
-		if strings.HasPrefix(str, davinciprinter.CommandTypeQuery) {
-			queryType := str[len(davinciprinter.CommandTypeQuery)+1 : len(davinciprinter.CommandTypeQuery)+2]
-
-			daVinciTcpIpCon.SendQueryResponse(queryType)
-
-		} else if strings.HasPrefix(str, davinciprinter.CommandTypeUpload) {
-
-			strUpload := str[len(davinciprinter.CommandTypeUpload)+1 : len(str)-2]
-			fields := strings.Split(strUpload, ",")
-			fmt.Println(strUpload, fields)
-
-			length, err := strconv.Atoi(fields[1])
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			fileName := fields[0]
-			fmt.Println(length, err, fileName)
-			fmt.Fprintln(conn, "ok")
-			err = connectToPrinter()
-			if err != nil {
-				fmt.Println("unable to connect to printer ", err)
-				return
-			}
-
-			uploadHandler := davinciprinter.NewDaVinciV3Upload(conn, nil, int64(length))
-
-			err = DaVinciPrinter.Upload(uploadHandler, func() { fmt.Fprintln(conn, "ok") }, int64(length))
-			if err != nil {
-				fmt.Printf("Upload returned error [%s]", err.Error())
-			}
-
-			disconnectFromPrinter()
-
-		} else if strings.HasPrefix(str, davinciprinter.CommandTypeConfig) || strings.HasPrefix(str, davinciprinter.CommandTypeAction) {
-			err = connectToPrinter()
-			if err != nil {
-				fmt.Println("unable to connect to printer ", err)
-				return
-			}
-			fmt.Printf("got: [%s]", str)
-			res, err := DaVinciPrinter.SendRaw(str)
-			if err != nil {
-				log.Println(err)
-				break
-
-			}
-			fmt.Fprintf(conn, "%s", res)
-			fmt.Println(res)
-			disconnectFromPrinter()
-		}
-
+func main() {
+	if AppVersion == "" {
+		AppVersion = "dev-build"
 	}
 
+	if len(os.Args) > 1 {
+		err := handleServiceCommand(os.Args[1])
+		if err != nil {
+			fmt.Printf("error %s", err.Error())
+			os.Exit(5)
+		}
+
+	} else {
+		startApplication()
+	}
 }
