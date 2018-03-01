@@ -26,14 +26,14 @@ import (
 
 	"github.com/rhysbryant/goprinterrelay/davinciprinter"
 	"github.com/rhysbryant/goprinterrelay/httphandlers"
-	"github.com/tarm/serial"
+	"github.com/rhysbryant/goprinterrelay/transport"
 )
 
 const (
 	CONN_TYPE = "tcp"
 )
 
-var port *serial.Port
+var printerConnection transport.PrinterConnection
 var DaVinciPrinter *davinciprinter.DaVinciV3Relay
 var queryCache *davinciprinter.QueryFieldsCacheMem
 var printerStatus *StatusQuery
@@ -46,20 +46,20 @@ var AppVersion string
 
 func connectToPrinter() error {
 	serialConLock.Lock()
-	fmt.Printf("%+v", config)
+
 	var err error
-	port, err = serial.OpenPort(&serial.Config{Name: config.Printer.DevicePath, Baud: 115200})
+	r, w, err := printerConnection.Connect()
 	if err != nil {
 		serialConLock.Unlock()
 		fmt.Println(err)
 		return err
 	}
-	DaVinciPrinter = davinciprinter.NewDaVinciV3Relay(port, port, queryCache)
+	DaVinciPrinter = davinciprinter.NewDaVinciV3Relay(w, r, queryCache)
 	return nil
 }
 
 func disconnectFromPrinter() {
-	port.Close()
+	printerConnection.Disconnect()
 	serialConLock.Unlock()
 }
 
@@ -82,6 +82,8 @@ func startApplication() {
 	queryCache = davinciprinter.NewQueryFieldsCache(config.Printer.RelayQueryOverrides)
 
 	applicationInfo = getApplicationInfo(config)
+
+	printerConnection = transport.GetConnection(config.Printer.DevicePath)
 
 	tools, err = loadTools("tools")
 	if err != nil {
