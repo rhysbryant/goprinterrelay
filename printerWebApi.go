@@ -73,7 +73,9 @@ func getStatusFromMap(values map[string]string) (*StatusQuery, error) {
 		if len(parts) < 2 {
 			return nil, errors.New("unexpected format")
 		}
+
 		status.Temperature, err = strconv.Atoi(parts[1])
+
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -88,16 +90,21 @@ func getStatusFromMap(values map[string]string) (*StatusQuery, error) {
 		}
 
 		status.PrintProgress, err = strconv.Atoi(parts[0])
+
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
+
 		status.ElapsedMinutes, err = strconv.Atoi(parts[1])
+
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
+
 		status.EstmatedMinutes, err = strconv.Atoi(parts[2])
+
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -105,11 +112,19 @@ func getStatusFromMap(values map[string]string) (*StatusQuery, error) {
 	}
 
 	if val, exists := values[PrinterStatusId]; exists {
+		if strings.Contains(val, ",") {
+			// Handle presence of substatus ID
+			fields := strings.Split(val, ",")
+			val = fields[0]
+		}
+
 		statusCode, err := strconv.Atoi(val)
+
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
+
 		status.PrinterStatus = davinciprinter.GetStatusText(statusCode)
 		fmt.Println(statusCode)
 	}
@@ -137,6 +152,7 @@ func getStatusFromMap(values map[string]string) (*StatusQuery, error) {
 		}
 
 		status.Filament.Remaining, err = strconv.Atoi(parts[1])
+
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -151,6 +167,7 @@ func getStatusFromMap(values map[string]string) (*StatusQuery, error) {
 	if val, exists := values[ProductSerialId]; exists {
 		status.PrinterInfo.Serial = val
 	}
+
 	return &status, nil
 }
 
