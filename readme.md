@@ -35,7 +35,7 @@ Web status page and Serial <> TCPIP proxy for daVinci jr 3d printers
    sudo cd /opt/goprint
    sudo wget {release download link}/goprinter_linux_arm.tar.gz
    sudo tar -xvf goprinter_linux_arm.tar.gz
-   sudo goprint -installSvc
+   sudo ./goprint -installSvc
    sudo systemctl start goPrint
    ```
    edit config.json and change devicePath (plugin you printer and run ls /dev/serial/by-id/usb-11f1_2510* )
