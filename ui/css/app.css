@@ -16,15 +16,24 @@
   height:100px;
   cursor: pointer;
 }
+
+ul#filmstrip{
+  white-space: nowrap;
+}
+
 #filmstrip li{
   display:inline;
-  white-space: nowrap
+  white-space: nowrap;
 }
 #filmstrip {
   overflow:auto;
   padding-left:0;
   margin-left:0;
 }
+#camGrab {
+  width: 100%;
+}
+
 .stream-control-btn{
 	height:42px;
 	width:42px;
